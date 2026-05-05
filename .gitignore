@@ -1,0 +1,6 @@
+server.out.log
+server.err.log
+.edge-report-profile/
+.vscode/
+Thumbs.db
+.DS_Store
