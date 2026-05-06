@@ -52,10 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="container">
         <div class="form-container">
-            <h2>Student Login</h2>
+            <h2>Account Login</h2>
             
             <?php if ($success): ?>
-                <div class="alert alert-success">Registration successful! Please login with your credentials.</div>
+                <div class="alert alert-success">Registration successful! Please log in with your credentials.</div>
             <?php endif; ?>
 
             <?php if ($error): ?>
@@ -83,6 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div style="margin-top: 30px; padding: 15px; background: #f5f5f5; border-radius: 5px;">
                 <p><strong>Demo Credentials:</strong></p>
                 <p>Admin - Username: <code>admin</code>, Password: <code>admin123</code></p>
+                <p>Student - Username: <code>student</code>, Password: <code>student123</code></p>
             </div>
         </div>
     </div>
