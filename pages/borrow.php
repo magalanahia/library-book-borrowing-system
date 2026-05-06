@@ -1,14 +1,21 @@
 <?php
+/*
+ * Borrow action page.
+ * Receives a book_id from the catalogue and attempts to create a borrowing record.
+ */
+
 require_once '../config/config.php';
 require_once '../includes/User.php';
 require_once '../includes/Book.php';
 require_once '../includes/Borrowing.php';
 
+// Only logged-in users can borrow books.
 if (!User::isLoggedIn()) {
     header('Location: login.php');
     exit;
 }
 
+// Borrowing must come from a POST request with a valid book_id.
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_POST['book_id'])) {
     header('Location: catalogue.php');
     exit;
@@ -17,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_POST['book_id'])) {
 $book_id = intval($_POST['book_id']);
 $user_id = $_SESSION['user_id'];
 
+// The Borrowing class handles availability, limits, and database updates.
 $borrowing = new Borrowing();
 $result = $borrowing->borrowBook($user_id, $book_id);
 

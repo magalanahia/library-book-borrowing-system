@@ -1,14 +1,21 @@
 <?php
+/*
+ * Borrowing history page.
+ * Displays all borrowing records for the logged-in user, including returned books and fines.
+ */
+
 require_once '../config/config.php';
 require_once '../includes/User.php';
 require_once '../includes/Borrowing.php';
 
+// Students must be logged in before their history can be shown.
 if (!User::isLoggedIn()) {
     header('Location: login.php');
     exit;
 }
 
 $borrowing = new Borrowing();
+// Retrieve only records for the current user from the database.
 $records = $borrowing->getUserBorrowingHistory($_SESSION['user_id']);
 ?>
 <!DOCTYPE html>
@@ -62,6 +69,7 @@ $records = $borrowing->getUserBorrowingHistory($_SESSION['user_id']);
                 </thead>
                 <tbody>
                     <?php foreach ($records as $record): ?>
+                        <!-- Each table row comes from borrowing_records joined with books. -->
                         <tr>
                             <td><?php echo htmlspecialchars($record['title']); ?></td>
                             <td><?php echo htmlspecialchars($record['author']); ?></td>

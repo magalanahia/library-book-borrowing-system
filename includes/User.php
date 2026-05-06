@@ -1,4 +1,9 @@
 <?php
+/*
+ * User class.
+ * Handles student registration, login, logout, and role checks for protected pages.
+ */
+
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/Database.php';
 
@@ -6,6 +11,7 @@ class User {
     private $db;
 
     public function __construct() {
+        // Each model class creates its own database helper.
         $this->db = new Database();
     }
 
@@ -24,8 +30,10 @@ class User {
             return ['success' => false, 'message' => 'Username or email already exists'];
         }
 
+        // Store only the hashed password, never the plain text password.
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
+        // New accounts created from the public registration form are students.
         $sql = "INSERT INTO users (username, email, password, full_name, role, enrollment_id, phone, address) 
                 VALUES (?, ?, ?, ?, 'student', ?, ?, ?)";
         $stmt = $this->db->prepare($sql);
@@ -49,6 +57,7 @@ class User {
         if ($result->num_rows === 1) {
             $user = $result->fetch_assoc();
             if (password_verify($password, $user['password'])) {
+                // Store the minimum user information needed by protected pages.
                 $_SESSION['user_id'] = $user['user_id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['email'] = $user['email'];
@@ -63,11 +72,13 @@ class User {
 
     // Check if user is logged in
     public static function isLoggedIn() {
+        // Protected pages call this before showing private content.
         return isset($_SESSION['user_id']);
     }
 
     // Check if user is admin
     public static function isAdmin() {
+        // Admin pages use this to enforce role-based access.
         return isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
     }
 

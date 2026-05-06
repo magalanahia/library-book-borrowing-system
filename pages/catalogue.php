@@ -1,8 +1,14 @@
 <?php
+/*
+ * Book catalogue page.
+ * Displays all books or filtered search results and lets logged-in users borrow available copies.
+ */
+
 require_once '../config/config.php';
 require_once '../includes/User.php';
 require_once '../includes/Book.php';
 
+// Only authenticated users can browse and borrow books.
 if (!User::isLoggedIn()) {
     header('Location: login.php');
     exit;
@@ -12,6 +18,7 @@ $book = new Book();
 $books = [];
 $search_keyword = '';
 
+// Search by title or author when the search form is submitted.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['search'])) {
     $search_keyword = trim($_POST['search']);
     $books = $book->searchBooks($search_keyword);
@@ -64,6 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['search'])) {
         <?php else: ?>
             <div class="books-grid">
                 <?php foreach ($books as $b): ?>
+                    <!-- Each card is generated dynamically from the books table. -->
                     <div class="book-card">
                         <h3><?php echo htmlspecialchars($b['title']); ?></h3>
                         <p><strong>Author:</strong> <?php echo htmlspecialchars($b['author']); ?></p>
@@ -73,6 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['search'])) {
                         <p class="description"><?php echo htmlspecialchars(substr($b['description'], 0, 100)); ?>...</p>
                         
                         <?php if ($b['available_copies'] > 0): ?>
+                            <!-- Borrow action posts the selected book_id to borrow.php. -->
                             <form method="POST" action="borrow.php" style="display: inline;">
                                 <input type="hidden" name="book_id" value="<?php echo $b['book_id']; ?>">
                                 <button type="submit" class="btn btn-success">Borrow</button>

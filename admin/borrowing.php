@@ -1,8 +1,14 @@
 <?php
+/*
+ * Admin borrowing activity page.
+ * Lets admin users view all borrowing records, filter them, and mark active loans returned.
+ */
+
 require_once '../config/config.php';
 require_once '../includes/User.php';
 require_once '../includes/Borrowing.php';
 
+// Admin-only page because it displays all students' borrowing records.
 if (!User::isLoggedIn() || !User::isAdmin()) {
     header('Location: ../pages/login.php');
     exit;
@@ -11,6 +17,7 @@ if (!User::isLoggedIn() || !User::isAdmin()) {
 $borrowing = new Borrowing();
 $message = '';
 
+// Admins can mark a selected active borrowing record as returned.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'return' && isset($_POST['record_id'])) {
     $message = $borrowing->returnBook(intval($_POST['record_id']));
 }
@@ -18,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'retur
 $filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
 $records = [];
 
+// Select the correct report query based on the filter button chosen.
 if ($filter === 'active') {
     $records = $borrowing->getActiveBorrows();
 } elseif ($filter === 'overdue') {
@@ -85,6 +93,7 @@ if ($filter === 'active') {
                 </thead>
                 <tbody>
                     <?php foreach ($records as $record): ?>
+                        <!-- Each row shows one borrowing transaction joined with user and book data. -->
                         <tr>
                             <td><?php echo htmlspecialchars($record['full_name']); ?></td>
                             <td><?php echo htmlspecialchars($record['email']); ?></td>

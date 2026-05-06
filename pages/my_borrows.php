@@ -1,8 +1,14 @@
 <?php
+/*
+ * Active borrows page.
+ * Shows the logged-in user's active loans and lets them return their own books.
+ */
+
 require_once '../config/config.php';
 require_once '../includes/User.php';
 require_once '../includes/Borrowing.php';
 
+// The page is protected because borrowing records belong to a user account.
 if (!User::isLoggedIn()) {
     header('Location: login.php');
     exit;
@@ -18,6 +24,7 @@ $active_records = array_filter($records, function($record) {
 
 $message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['record_id'])) {
+    // Pass the session user_id to prevent returning another user's record.
     $record_id = intval($_POST['record_id']);
     $result = $borrowing->returnBook($record_id, $_SESSION['user_id']);
     $message = $result;
@@ -85,6 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['record_id'])) {
                 </thead>
                 <tbody>
                     <?php foreach ($active_records as $record): 
+                        // Calculate due-date status for warning and overdue labels.
                         $days_left = ceil((strtotime($record['due_date']) - time()) / (60 * 60 * 24));
                         $status_class = $days_left <= 0 ? 'overdue' : ($days_left <= 3 ? 'warning' : 'normal');
                     ?>

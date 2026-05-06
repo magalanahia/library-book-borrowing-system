@@ -1,10 +1,12 @@
--- Library Book Borrowing System database dump
+-- Library Book Borrowing System database dump.
 -- Import this file into MySQL/phpMyAdmin before running the application.
 
+-- Recreate the database from scratch for a clean setup.
 DROP DATABASE IF EXISTS library_system;
 CREATE DATABASE library_system;
 USE library_system;
 
+-- Users store both students and admins. The role column controls access.
 CREATE TABLE users (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(50) UNIQUE NOT NULL,
@@ -20,6 +22,7 @@ CREATE TABLE users (
     is_active BOOLEAN DEFAULT TRUE
 );
 
+-- Books store catalogue details and current availability.
 CREATE TABLE books (
     book_id INT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(200) NOT NULL,
@@ -35,6 +38,7 @@ CREATE TABLE books (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- Borrowing records connect users to books and track due dates, returns, and fines.
 CREATE TABLE borrowing_records (
     record_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
@@ -53,6 +57,7 @@ CREATE TABLE borrowing_records (
     INDEX (status)
 );
 
+-- Indexes make login, search, and borrowing reports faster.
 CREATE INDEX idx_username ON users(username);
 CREATE INDEX idx_email ON users(email);
 CREATE INDEX idx_book_title ON books(title);
@@ -60,10 +65,13 @@ CREATE INDEX idx_book_author ON books(author);
 CREATE INDEX idx_borrow_user ON borrowing_records(user_id);
 CREATE INDEX idx_borrow_book ON borrowing_records(book_id);
 
+-- Default accounts for presentation and marking:
+-- admin/admin123 and student/student123.
 INSERT INTO users (username, email, password, full_name, role, enrollment_id) VALUES
 ('admin', 'admin@library.com', '$2y$10$XuPmZuMjIgjPjivbN4LgKe6eCdTVZJryIHqu2VIxFJGEQ/Esc3rOO', 'Library Admin', 'admin', 'ADM001'),
 ('student', 'student@library.com', '$2y$10$rar5imDQmMYAHsShgCdqoe5VKbdBKffOnFpu.E6E6lPO0Mdgt3bIu', 'Demo Student', 'student', 'STU001');
 
+-- Default catalogue records so the system has data immediately after import.
 INSERT INTO books (title, author, isbn, publisher, publication_year, category, total_copies, available_copies, description) VALUES
 ('The Great Gatsby', 'F. Scott Fitzgerald', '978-0743273565', 'Scribner', 1925, 'Fiction', 3, 3, 'A classic American novel set in the Jazz Age.'),
 ('To Kill a Mockingbird', 'Harper Lee', '978-0061120084', 'J.B. Lippincott', 1960, 'Fiction', 2, 2, 'A gripping tale of racial injustice and childhood innocence.'),
@@ -71,6 +79,7 @@ INSERT INTO books (title, author, isbn, publisher, publication_year, category, t
 ('Pride and Prejudice', 'Jane Austen', '978-0141439518', 'Penguin Classics', 1813, 'Romance', 4, 4, 'A romantic novel of manners.'),
 ('The Catcher in the Rye', 'J.D. Salinger', '978-0316769174', 'Little, Brown', 1951, 'Fiction', 2, 2, 'A story of teenage rebellion and alienation.');
 
+-- View for checking catalogue data directly from the database.
 CREATE OR REPLACE VIEW book_catalogue_view AS
 SELECT book_id, title, author, isbn, category, total_copies, available_copies
 FROM books;

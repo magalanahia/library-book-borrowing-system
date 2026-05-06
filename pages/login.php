@@ -1,7 +1,13 @@
 <?php
+/*
+ * Login page for both student and admin users.
+ * The User class verifies credentials and stores session data after a successful login.
+ */
+
 require_once '../config/config.php';
 require_once '../includes/User.php';
 
+// If a user is already logged in, send them back to the home page.
 if (User::isLoggedIn()) {
     header('Location: ../index.php');
     exit;
@@ -11,9 +17,11 @@ $error = '';
 $success = isset($_GET['success']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Read submitted credentials from the login form.
     $username = trim($_POST['username']);
     $password = $_POST['password'];
 
+    // Basic validation before checking the database.
     if (empty($username) || empty($password)) {
         $error = 'Please enter both username and password';
     } else {
@@ -55,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h2>Account Login</h2>
             
             <?php if ($success): ?>
+                <!-- Displayed after a new student successfully registers. -->
                 <div class="alert alert-success">Registration successful! Please log in with your credentials.</div>
             <?php endif; ?>
 
@@ -81,6 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </p>
 
             <div style="margin-top: 30px; padding: 15px; background: #f5f5f5; border-radius: 5px;">
+                <!-- Demo accounts make presentation and marking easier. -->
                 <p><strong>Demo Credentials:</strong></p>
                 <p>Admin - Username: <code>admin</code>, Password: <code>admin123</code></p>
                 <p>Student - Username: <code>student</code>, Password: <code>student123</code></p>

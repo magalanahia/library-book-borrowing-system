@@ -1,7 +1,13 @@
 <?php
+/*
+ * Student registration page.
+ * Collects new student details, validates the form, and creates a student account.
+ */
+
 require_once '../config/config.php';
 require_once '../includes/User.php';
 
+// Already logged-in users should not register another account from this page.
 if (User::isLoggedIn()) {
     header('Location: ../index.php');
     exit;
@@ -10,6 +16,7 @@ if (User::isLoggedIn()) {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Trim text inputs so accidental spaces do not become part of stored data.
     $username = trim($_POST['username']);
     $email = trim($_POST['email']);
     $password = $_POST['password'];
@@ -19,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone = trim($_POST['phone']);
     $address = trim($_POST['address']);
 
+    // Server-side validation gives feedback and prevents invalid records.
     if (empty($username) || empty($email) || empty($password) || empty($full_name) || empty($enrollment_id)) {
         $error = 'Please fill in all required fields';
     } elseif ($password !== $confirm_password) {
@@ -65,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h2>Student Registration</h2>
             
             <?php if ($error): ?>
+                <!-- Show validation or database feedback near the form. -->
                 <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
             <?php endif; ?>
 

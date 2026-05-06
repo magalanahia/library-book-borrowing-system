@@ -1,4 +1,10 @@
 <?php
+/*
+ * Database helper class.
+ * It centralizes the MySQL connection and exposes small helper methods used by
+ * the User, Book, and Borrowing classes.
+ */
+
 class Database {
     private $connection;
     private $host;
@@ -7,6 +13,7 @@ class Database {
     private $db;
 
     public function __construct() {
+        // Load connection details from config/config.php constants.
         $this->host = DB_HOST;
         $this->user = DB_USER;
         $this->pass = DB_PASS;
@@ -15,12 +22,14 @@ class Database {
     }
 
     private function connect() {
+        // Create one mysqli connection for this Database object.
         $this->connection = new mysqli($this->host, $this->user, $this->pass, $this->db);
 
         if ($this->connection->connect_error) {
             die("Database connection failed: " . $this->connection->connect_error);
         }
 
+        // UTF-8 supports normal text data for titles, names, and descriptions.
         $this->connection->set_charset("utf8");
     }
 
@@ -29,6 +38,7 @@ class Database {
     }
 
     public function query($sql) {
+        // Used only for fixed SQL statements that do not include user input.
         $result = $this->connection->query($sql);
 
         if (!$result) {
@@ -39,10 +49,12 @@ class Database {
     }
 
     public function prepare($sql) {
+        // Prepared statements protect user input from SQL injection.
         return $this->connection->prepare($sql);
     }
 
     public function executePrepared($sql, $types = '', ...$params) {
+        // Convenience wrapper for prepare + bind_param + execute.
         $stmt = $this->prepare($sql);
 
         if ($types !== '' && !empty($params)) {
@@ -54,6 +66,7 @@ class Database {
     }
 
     public function escape($data) {
+        // Escapes special characters before building LIKE search terms.
         return $this->connection->real_escape_string($data);
     }
 

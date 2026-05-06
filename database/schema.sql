@@ -1,3 +1,6 @@
+-- Library Book Borrowing System schema.
+-- This file creates the database structure and inserts default demo records.
+
 -- Create Database
 CREATE DATABASE IF NOT EXISTS library_system;
 USE library_system;
@@ -61,7 +64,8 @@ CREATE INDEX idx_book_author ON books(author);
 CREATE INDEX idx_borrow_user ON borrowing_records(user_id);
 CREATE INDEX idx_borrow_book ON borrowing_records(book_id);
 
--- Sample Data (Optional)
+-- Sample users use password_hash-compatible values:
+-- admin/admin123 and student/student123.
 INSERT INTO users (username, email, password, full_name, role, enrollment_id) VALUES
 ('admin', 'admin@library.com', '$2y$10$XuPmZuMjIgjPjivbN4LgKe6eCdTVZJryIHqu2VIxFJGEQ/Esc3rOO', 'Library Admin', 'admin', 'ADM001'),
 ('student', 'student@library.com', '$2y$10$rar5imDQmMYAHsShgCdqoe5VKbdBKffOnFpu.E6E6lPO0Mdgt3bIu', 'Demo Student', 'student', 'STU001')
@@ -71,6 +75,7 @@ role = VALUES(role),
 full_name = VALUES(full_name),
 enrollment_id = VALUES(enrollment_id);
 
+-- Sample catalogue records for testing search, borrowing, and admin management.
 INSERT INTO books (title, author, isbn, publisher, publication_year, category, total_copies, available_copies, description) VALUES
 ('The Great Gatsby', 'F. Scott Fitzgerald', '978-0743273565', 'Scribner', 1925, 'Fiction', 3, 3, 'A classic American novel set in the Jazz Age.'),
 ('To Kill a Mockingbird', 'Harper Lee', '978-0061120084', 'J.B. Lippincott', 1960, 'Fiction', 2, 2, 'A gripping tale of racial injustice and childhood innocence.'),
@@ -78,6 +83,7 @@ INSERT INTO books (title, author, isbn, publisher, publication_year, category, t
 ('Pride and Prejudice', 'Jane Austen', '978-0141439518', 'Penguin Classics', 1813, 'Romance', 4, 4, 'A romantic novel of manners.'),
 ('The Catcher in the Rye', 'J.D. Salinger', '978-0316769174', 'Little, Brown', 1951, 'Fiction', 2, 2, 'A story of teenage rebellion and alienation.');
 
+-- Simple view for quickly checking dynamic catalogue data in MySQL.
 CREATE OR REPLACE VIEW book_catalogue_view AS
 SELECT book_id, title, author, isbn, category, total_copies, available_copies
 FROM books;

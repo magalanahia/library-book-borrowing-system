@@ -1,4 +1,9 @@
 <?php
+/*
+ * Borrowing class.
+ * Coordinates borrowing, returning, due dates, fines, and borrowing reports.
+ */
+
 require_once __DIR__ . '/Database.php';
 
 class Borrowing {
@@ -12,10 +17,10 @@ class Borrowing {
     public function borrowBook($user_id, $book_id) {
         $conn = $this->db->getConnection();
 
-        // Calculate due date
+        // Calculate due date based on the configured loan period.
         $due_date = date('Y-m-d', strtotime('+' . BORROW_DAYS . ' days'));
 
-        // Start transaction
+        // Start transaction so the record insert and copy decrement stay together.
         $conn->begin_transaction();
 
         try {
@@ -31,7 +36,7 @@ class Borrowing {
                 return ['success' => false, 'message' => 'Book is not available'];
             }
 
-            // Check borrow limit
+            // Check borrow limit before creating the new borrowing record.
             $limitSql = "SELECT COUNT(*) as active_count FROM borrowing_records WHERE user_id = ? AND status = 'active'";
             $stmt = $this->db->prepare($limitSql);
             $stmt->bind_param('i', $user_id);
@@ -53,13 +58,13 @@ class Borrowing {
                 return ['success' => false, 'message' => 'You already have this book'];
             }
 
-            // Insert borrowing record
+            // Insert borrowing record with active status and due date.
             $borrowSql = "INSERT INTO borrowing_records (user_id, book_id, due_date, status) VALUES (?, ?, ?, 'active')";
             $stmt = $this->db->prepare($borrowSql);
             $stmt->bind_param('iis', $user_id, $book_id, $due_date);
             $stmt->execute();
 
-            // Update available copies
+            // Decrease available copies only if a copy is still available.
             $updateSql = "UPDATE books SET available_copies = available_copies - 1 WHERE book_id = ? AND available_copies > 0";
             $stmt = $this->db->prepare($updateSql);
             $stmt->bind_param('i', $book_id);
@@ -82,7 +87,7 @@ class Borrowing {
     public function returnBook($record_id, $user_id = null) {
         $conn = $this->db->getConnection();
 
-        // Get borrowing record
+        // Students pass user_id so they can only return their own records.
         $recordSql = "SELECT * FROM borrowing_records WHERE record_id = ? AND status = 'active'";
         if ($user_id !== null) {
             $recordSql .= " AND user_id = ?";
@@ -103,7 +108,7 @@ class Borrowing {
         $return_date = date('Y-m-d');
         $fine_amount = 0;
 
-        // Calculate fine if overdue
+        // Calculate fine if overdue. The rate is 10 per day.
         if ($return_date > $record['due_date']) {
             $days_overdue = (strtotime($return_date) - strtotime($record['due_date'])) / (60 * 60 * 24);
             $fine_amount = $days_overdue * 10; // 10 per day
@@ -118,7 +123,7 @@ class Borrowing {
             $stmt->bind_param('sdi', $return_date, $fine_amount, $record_id);
             $stmt->execute();
 
-            // Update available copies
+            // Increase availability but never above total copies.
             $updateBookSql = "UPDATE books SET available_copies = LEAST(available_copies + 1, total_copies) WHERE book_id = ?";
             $stmt = $this->db->prepare($updateBookSql);
             $stmt->bind_param('i', $record['book_id']);

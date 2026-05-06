@@ -1,4 +1,10 @@
 <?php
+/*
+ * Home page.
+ * Shows different navigation links depending on whether the visitor is logged in
+ * and whether the logged-in user is an admin.
+ */
+
 require_once 'config/config.php';
 require_once 'includes/User.php';
 ?>
@@ -16,11 +22,13 @@ require_once 'includes/User.php';
             <h1 class="logo"><?php echo APP_NAME; ?></h1>
             <nav>
                 <ul>
+                    <!-- Logged-in users see catalogue and account actions. -->
                     <?php if (User::isLoggedIn()): ?>
                         <li><a href="pages/catalogue.php">Catalogue</a></li>
                         <li><a href="pages/my_borrows.php">My Borrows</a></li>
                         <li><a href="pages/borrowing_history.php">History</a></li>
                         <?php if (User::isAdmin()): ?>
+                            <!-- Admin panel is only shown to admin users. -->
                             <li><a href="admin/dashboard.php">Admin Panel</a></li>
                         <?php endif; ?>
                         <li><a href="pages/logout.php">Logout (<?php echo $_SESSION['username']; ?>)</a></li>
@@ -37,6 +45,7 @@ require_once 'includes/User.php';
         <div class="container">
             <h2>Welcome to <?php echo APP_NAME; ?></h2>
             <p>Manage your book borrowing experience</p>
+            <!-- Call-to-action changes based on login state. -->
             <?php if (!User::isLoggedIn()): ?>
                 <p>
                     <a href="pages/login.php" class="btn btn-primary">Login</a>

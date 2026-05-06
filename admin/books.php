@@ -1,8 +1,14 @@
 <?php
+/*
+ * Admin book management page.
+ * Allows admin users to add, edit, and delete catalogue records.
+ */
+
 require_once '../config/config.php';
 require_once '../includes/User.php';
 require_once '../includes/Book.php';
 
+// Role-based protection: students cannot access book management.
 if (!User::isLoggedIn() || !User::isAdmin()) {
     header('Location: ../pages/login.php');
     exit;
@@ -12,10 +18,11 @@ $book = new Book();
 $message = '';
 $edit_book = null;
 
-// Handle add/edit/delete
+// Handle add/edit/delete actions submitted by the admin forms.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action'])) {
         if ($_POST['action'] === 'add') {
+            // Add a brand-new book record.
             $result = $book->addBook(
                 $_POST['title'],
                 $_POST['author'],
@@ -29,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = $result;
             $books = $book->getAllBooks(); // Refresh list
         } elseif ($_POST['action'] === 'update') {
+            // Save changes made through the edit form.
             $result = $book->updateBook(
                 intval($_POST['book_id']),
                 $_POST['title'],
@@ -43,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = $result;
             $books = $book->getAllBooks(); // Refresh list
         } elseif ($_POST['action'] === 'delete') {
+            // Delete is blocked inside Book::deleteBook when borrowing history exists.
             $result = $book->deleteBook(intval($_POST['book_id']));
             $message = $result;
             $books = $book->getAllBooks(); // Refresh list
@@ -50,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// If an edit id is provided, load that book into the edit form.
 if (isset($_GET['edit'])) {
     $edit_book = $book->getBookById(intval($_GET['edit']));
     if (!$edit_book) {
@@ -57,6 +67,7 @@ if (isset($_GET['edit'])) {
     }
 }
 
+// Always load the latest book list after any action.
 $books = $book->getAllBooks();
 ?>
 <!DOCTYPE html>
@@ -224,6 +235,7 @@ $books = $book->getAllBooks();
                 </thead>
                 <tbody>
                     <?php foreach ($books as $b): ?>
+                        <!-- Each row is a database book record with admin actions. -->
                         <tr>
                             <td><?php echo htmlspecialchars($b['title']); ?></td>
                             <td><?php echo htmlspecialchars($b['author']); ?></td>

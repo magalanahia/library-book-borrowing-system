@@ -1,6 +1,7 @@
 """
 Library Book Borrowing System - Project Validator
-This script validates the project structure and files
+This script validates the project structure and files.
+It is a helper for presentation/submission checks and does not run the app.
 """
 
 import os
@@ -9,6 +10,7 @@ from pathlib import Path
 
 class ProjectValidator:
     def __init__(self, project_path):
+        # Store the project root and containers for each validation category.
         self.project_path = Path(project_path)
         self.results = {
             'structure': [],
@@ -28,6 +30,7 @@ class ProjectValidator:
         ]
         
         for dir_name in required_dirs:
+            # Each required directory must exist at the project root.
             dir_path = self.project_path / dir_name
             if dir_path.exists() and dir_path.is_dir():
                 print(f"✅ Directory exists: {dir_name}")
@@ -65,6 +68,7 @@ class ProjectValidator:
         }
         
         for file_path, description in required_files.items():
+            # Required files prove that the web app is organized for deployment.
             full_path = self.project_path / file_path
             if full_path.exists() and full_path.is_file():
                 size = full_path.stat().st_size
@@ -130,6 +134,7 @@ class ProjectValidator:
         }
         
         for file_path, patterns in checks.items():
+            # Pattern checks look for important methods/features in each file.
             full_path = self.project_path / file_path
             if full_path.exists():
                 with open(full_path, 'r', encoding='utf-8', errors='ignore') as f:

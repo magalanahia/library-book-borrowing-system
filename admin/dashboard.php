@@ -1,9 +1,15 @@
 <?php
+/*
+ * Admin dashboard.
+ * Provides quick summary counts and navigation for library administration.
+ */
+
 require_once '../config/config.php';
 require_once '../includes/User.php';
 require_once '../includes/Book.php';
 require_once '../includes/Borrowing.php';
 
+// Only admin users can access dashboard statistics.
 if (!User::isLoggedIn() || !User::isAdmin()) {
     header('Location: ../pages/login.php');
     exit;
@@ -12,6 +18,7 @@ if (!User::isLoggedIn() || !User::isAdmin()) {
 $book = new Book();
 $borrowing = new Borrowing();
 
+// Summary figures are calculated from live database records.
 $total_books = count($book->getAllBooks());
 $active_borrows = count($borrowing->getActiveBorrows());
 $overdue_books = count($borrowing->getOverdueBooks());
